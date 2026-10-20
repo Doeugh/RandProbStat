@@ -41,15 +41,40 @@ namespace RandProbStat
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Press enter to roll for loot");
+            bool playing = true;
 
-            Console.ReadLine();
+            while (playing)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
+                Console.WriteLine("1. Roll for loot");
+                Console.WriteLine("2. View stats");
+                Console.WriteLine("3. Quit");
 
-            RollLoot();
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write("Choose an option: ");
 
-            Console.WriteLine("\nPress any key to exit.");
-            Console.ReadKey();
+                string choice = Console.ReadLine();
+
+                if (choice == "1")
+                {
+                    RollLoot();
+                }
+                else if (choice == "2")
+                {
+                    ShowStatistics();
+                }
+                else if (choice == "3")
+                {
+                    playing = false;
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Invalid choice. Please try again.");
+                }
+            }
         }
+
 
         static void RollLoot()
         {
@@ -79,13 +104,57 @@ namespace RandProbStat
             }
         }
 
+        static void ShowStatistics()
+        {
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"Total Rolls: {totalRolls}");
+
+            DisplayStats("Common", commonDrops, 60);
+            DisplayStats("Uncommon", uncommonDrops, 25);
+            DisplayStats("Rare", rareDrops, 12);
+            DisplayStats("Legendary", legendaryDrops, 3);
+
+            Console.WriteLine();
+        }
+
+        static void DisplayStats(string rarity, int drops, double expectedChance)
+        {
+            double actualChance = 0;
+
+            if (totalRolls > 0)
+            {
+                actualChance = (double)drops / totalRolls * 100;
+            }
+
+            Console.WriteLine($"{rarity}: {drops} drops , " + $"Actual: {actualChance:F2}% , " +$"Expected: {expectedChance}%");
+        }
+
         static void DisplayDrop(string rarity, List<string> items)
         {
             int itemIndex = random.Next(items.Count);
             string item = items[itemIndex];
 
+            if (rarity == "Common")
+            {
+                Console.ForegroundColor = ConsoleColor.Gray;
+            }
+            else if (rarity == "Uncommon")
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+            }
+            else if (rarity == "Rare")
+            {
+                Console.ForegroundColor = ConsoleColor.Blue;
+            }
+            else if (rarity == "Legendary")
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+            }
+
             Console.WriteLine($"\nYou received a {rarity} item!");
             Console.WriteLine($"Item: {item}");
+            Console.WriteLine();
         }
     }
 }
