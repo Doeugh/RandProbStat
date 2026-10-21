@@ -48,7 +48,9 @@ namespace RandProbStat
                 Console.ForegroundColor = ConsoleColor.DarkYellow;
                 Console.WriteLine("1. Roll for loot");
                 Console.WriteLine("2. View stats");
-                Console.WriteLine("3. Quit");
+                Console.WriteLine("3. Simulate rolls");
+                Console.WriteLine("4. Remove an item");
+                Console.WriteLine("5. Quit");
 
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("Choose an option: ");
@@ -65,12 +67,33 @@ namespace RandProbStat
                 }
                 else if (choice == "3")
                 {
+                    Console.Write("How many rolls would you like to simulate? ");
+
+                    string input = Console.ReadLine();
+
+                    if (int.TryParse(input, out int amount) && amount > 0)
+                    {
+                        SimulateRolls(amount);
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Please enter a valid number");
+                        Console.ResetColor();
+                    }
+                }
+                else if (choice == "4")
+                {
+                    RemoveItem();
+                }
+                else if (choice == "5")
+                {
                     playing = false;
                 }
                 else
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Invalid choice. Please try again.");
+                    Console.WriteLine("Invalid choice");
                 }
             }
         }
@@ -104,17 +127,140 @@ namespace RandProbStat
             }
         }
 
+        static void SimulateRolls(int amount)
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine($"\nSimulating {amount} rolls");
+            Console.ResetColor();
+
+            for (int i = 0; i < amount; i++)
+            {
+                int roll = random.Next(1, 101);
+
+                totalRolls++;
+
+                if (roll <= 60)
+                {
+                    commonDrops++;
+                }
+                else if (roll <= 85)
+                {
+                    uncommonDrops++;
+                }
+                else if (roll <= 97)
+                {
+                    rareDrops++;
+                }
+                else
+                {
+                    legendaryDrops++;
+                }
+            }
+
+            ShowStatistics();
+        }
+
+
+        static void RemoveItem()
+        {
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.WriteLine("\nWhich rarity would you like to remove an item from?");
+
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine("1. Common");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("2. Uncommon");
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine("3. Rare");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("4. Legendary");
+
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write("Choose a rarity: ");
+
+            string choice = Console.ReadLine();
+
+            List<string> selectedItems;
+
+            if (choice == "1")
+            {
+                selectedItems = commonItems;
+            }
+            else if (choice == "2")
+            {
+                selectedItems = uncommonItems;
+            }
+            else if (choice == "3")
+            {
+                selectedItems = rareItems;
+            }
+            else if (choice == "4")
+            {
+                selectedItems = legendaryItems;
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Invalid rarity choice");
+                Console.ResetColor();
+                return;
+            }
+
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.WriteLine("\nAvailable items");
+            Console.ResetColor();
+
+            for (int i = 0; i < selectedItems.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {selectedItems[i]}");
+            }
+
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write("Enter the number of the item to remove: ");
+            Console.ResetColor();
+
+            string input = Console.ReadLine();
+
+            if (int.TryParse(input, out int itemNumber) && itemNumber >= 1 && itemNumber <= selectedItems.Count)
+            {
+                string removedItem = selectedItems[itemNumber - 1];
+
+                selectedItems.RemoveAt(itemNumber - 1);
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"\nRemoved {removedItem}");
+                Console.ResetColor();
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Invalid item number");
+                Console.ResetColor();
+            }
+
+            Console.WriteLine();
+        }
+
+
         static void ShowStatistics()
         {
             Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.Green;
+            Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine($"Total Rolls: {totalRolls}");
 
+            Console.ForegroundColor = ConsoleColor.Gray;
             DisplayStats("Common", commonDrops, 60);
+
+            Console.ForegroundColor = ConsoleColor.Green;
             DisplayStats("Uncommon", uncommonDrops, 25);
+
+            Console.ForegroundColor = ConsoleColor.Blue;
             DisplayStats("Rare", rareDrops, 12);
+
+            Console.ForegroundColor = ConsoleColor.Yellow;
             DisplayStats("Legendary", legendaryDrops, 3);
 
+            Console.ResetColor();
             Console.WriteLine();
         }
 
@@ -127,11 +273,19 @@ namespace RandProbStat
                 actualChance = (double)drops / totalRolls * 100;
             }
 
-            Console.WriteLine($"{rarity}: {drops} drops , " + $"Actual: {actualChance:F2}% , " +$"Expected: {expectedChance}%");
+            Console.WriteLine($"{rarity}: {drops} drops , " + $"Actual: {actualChance:F2}% , " + $"Expected: {expectedChance}%");
         }
 
         static void DisplayDrop(string rarity, List<string> items)
         {
+            if (items.Count == 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"\nYou rolled {rarity}, but no items are available!");
+                Console.WriteLine();
+                return;
+            }
+
             int itemIndex = random.Next(items.Count);
             string item = items[itemIndex];
 
@@ -154,6 +308,7 @@ namespace RandProbStat
 
             Console.WriteLine($"\nYou received a {rarity} item!");
             Console.WriteLine($"Item: {item}");
+            Console.ResetColor();
             Console.WriteLine();
         }
     }
