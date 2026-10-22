@@ -80,6 +80,7 @@ namespace RandProbStat
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("Please enter a valid number");
                         Console.ResetColor();
+                        Console.WriteLine();
                     }
                 }
                 else if (choice == "4")
@@ -94,33 +95,36 @@ namespace RandProbStat
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Invalid choice");
+                    Console.WriteLine();
                 }
             }
         }
 
-
         static void RollLoot()
         {
-            int roll = random.Next(1, 101);
-
             totalRolls++;
 
-            if (roll <= 60)
+            int level = GetLevel(totalRolls);
+            int roll = random.Next(1, 101);
+
+            string rarity = DetermineRarity(roll, level);
+
+            if (rarity == "Common")
             {
                 commonDrops++;
                 DisplayDrop("Common", commonItems);
             }
-            else if (roll <= 85)
+            else if (rarity == "Uncommon")
             {
                 uncommonDrops++;
                 DisplayDrop("Uncommon", uncommonItems);
             }
-            else if (roll <= 97)
+            else if (rarity == "Rare")
             {
                 rareDrops++;
                 DisplayDrop("Rare", rareItems);
             }
-            else
+            else if (rarity == "Legendary")
             {
                 legendaryDrops++;
                 DisplayDrop("Legendary", legendaryItems);
@@ -135,29 +139,76 @@ namespace RandProbStat
 
             for (int i = 0; i < amount; i++)
             {
-                int roll = random.Next(1, 101);
-
                 totalRolls++;
 
-                if (roll <= 60)
+                int level = GetLevel(totalRolls);
+                int roll = random.Next(1, 101);
+
+                string rarity = DetermineRarity(roll, level);
+
+                if (rarity == "Common")
                 {
                     commonDrops++;
                 }
-                else if (roll <= 85)
+                else if (rarity == "Uncommon")
                 {
                     uncommonDrops++;
                 }
-                else if (roll <= 97)
+                else if (rarity == "Rare")
                 {
                     rareDrops++;
                 }
-                else
+                else if (rarity == "Legendary")
                 {
                     legendaryDrops++;
                 }
             }
 
             ShowStatistics();
+        }
+
+        static int GetLevel(int rolls)
+        {
+            if (rolls <= 10)
+            {
+                return 1;
+            }
+            else if (rolls <= 25)
+            {
+                return 2;
+            }
+            else if (rolls <= 50)
+            {
+                return 3;
+            }
+            else
+            {
+                return 4;
+            }
+        }
+
+        static string DetermineRarity(int roll, int level)
+        {
+            if (roll <= 60)
+            {
+                return "Common";
+            }
+            else if (roll <= 85 && level >= 2)
+            {
+                return "Uncommon";
+            }
+            else if (roll <= 97 && level >= 3)
+            {
+                return "Rare";
+            }
+            else if (level >= 4)
+            {
+                return "Legendary";
+            }
+            else
+            {
+                return "Common";
+            }
         }
 
 
